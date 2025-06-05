@@ -42,9 +42,12 @@ def transcribe_audio(audio_file, api_key):
         Upload a podcast episode to get a complete text transcript.
     """
     try:
-        # Validate inputs
-        if not api_key:
-            return "Error: Please provide your Groq API key"
+        # First check for environment variable, then use provided API key
+        actual_api_key = os.environ.get("GROQ_API_KEY", api_key)
+        
+        # Validate API key
+        if not actual_api_key:
+            return "Error: Please provide your Groq API key or set the GROQ_API_KEY environment variable"
         
         if audio_file is None:
             return "Error: Please upload an audio or video file"
@@ -55,7 +58,7 @@ def transcribe_audio(audio_file, api_key):
             return f"Error: {message}"
         
         # Initialize Groq client
-        client = Groq(api_key=api_key)
+        client = Groq(api_key=actual_api_key)
         
         # Read the audio file
         with open(audio_file.name, "rb") as file:
@@ -86,11 +89,15 @@ with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft
                 file_count="single"
             )
             
+            # Show a note if env var is present
+            api_key_note = "API key will be used from environment variable if set" if os.environ.get("GROQ_API_KEY") else ""
+            
             api_key_input = gr.Textbox(
                 label="Groq API Key",
-                placeholder="Enter your Groq API key here...",
+                placeholder="Enter your Groq API key here or set GROQ_API_KEY environment variable",
                 type="password",
-                lines=1
+                lines=1,
+                info=api_key_note
             )
             
             transcribe_btn = gr.Button(
