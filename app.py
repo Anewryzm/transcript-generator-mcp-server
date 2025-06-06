@@ -124,8 +124,6 @@ def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
         audio_url: URL to an audio or video file to transcribe (http or https). 
                   Supported formats: MP3, MP4, MPEG, MPGA, M4A, WAV, WebM, FLAC, OGG, AAC.
                   Maximum size: 25MB.
-        api_key: Your Groq API key, required for authentication.
-                You can obtain this from https://console.groq.com/
     
     Returns:
         A text transcript of the spoken content in the audio file.
