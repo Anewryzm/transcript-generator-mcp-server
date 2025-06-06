@@ -3,3 +3,4 @@
 /flagged
 .DS_Store
 .continue/
+.env
