@@ -114,7 +114,7 @@ def transcribe_audio(audio_file, api_key):
     except Exception as e:
         return f"Error: {str(e)}"
 
-def transcribe_audio_from_url(audio_url, api_key):
+def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
     """Transcribe audio/video files from a URL into text using Groq's Whisper model.
     
     This tool converts spoken content from audio and video files into written text.
@@ -135,7 +135,14 @@ def transcribe_audio_from_url(audio_url, api_key):
     """
     try:
         # First check for environment variable, then use provided API key
-        actual_api_key = os.environ.get("GROQ_API_KEY", api_key)
+        actual_api_key = os.environ.get("GROQ_API_KEY")
+
+        if not actual_api_key and request is not None:
+            # If request is provided, check for API key in headers
+            actual_api_key = request.headers.get("GROQ_API_KEY")
+        
+        if not actual_api_key:
+            actual_api_key = api_key
         
         # Validate API key
         if not actual_api_key:
@@ -307,4 +314,4 @@ with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft
     """)
 
 if __name__ == "__main__":
-    demo.launch(mcp_server=True)
+    demo.launch()
