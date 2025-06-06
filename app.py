@@ -314,4 +314,4 @@ with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft
     """)
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(mcp_server=True)
