@@ -130,5 +130,5 @@ The assistant will use the appropriate MCP tool to fetch and return the transcri
 
 - [Get your Groq API key](https://console.groq.com/)
 - [Groq Documentation](https://console.groq.com/docs)
-- [Supported audio formats](https://platform.openai.com/docs/guides/speech-to-text)
+- [Supported audio formats](https://console.groq.com/docs/speech-to-text)
 - [Hugging Face Spaces Configuration](https://huggingface.co/docs/hub/spaces-config-reference)
