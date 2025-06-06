@@ -4,7 +4,6 @@ from groq import Groq
 import tempfile
 import requests
 import urllib.parse
-import json
 
 def validate_file(file):
     """Validate uploaded file type and size."""
@@ -64,19 +63,7 @@ def validate_url_file(url):
     except Exception as e:
         return False, f"Error validating URL: {str(e)}"
 
-def get_request_headers(request: gr.Request):
-    """Extract headers from the request object."""
-    if request is None:
-        return {"message": "No request object available"}
-    
-    try:
-        # Extract all headers from the request
-        headers = {key: value for key, value in request.headers.items()}
-        return headers
-    except Exception as e:
-        return {"error": f"Error extracting headers: {str(e)}"}
-
-def transcribe_audio(audio_file, api_key, request: gr.Request = None):
+def transcribe_audio(audio_file, api_key):
     """Transcribe audio/video files into text using Groq's Whisper model.
     
     This tool converts spoken content from audio and video files into written text.
@@ -88,7 +75,6 @@ def transcribe_audio(audio_file, api_key, request: gr.Request = None):
                    Maximum size: 25MB.
         api_key: Your Groq API key, required for authentication.
                 You can obtain this from https://console.groq.com/
-        request: The Gradio request object containing headers.
     
     Returns:
         A text transcript of the spoken content in the audio file.
@@ -97,31 +83,12 @@ def transcribe_audio(audio_file, api_key, request: gr.Request = None):
         Upload a podcast episode to get a complete text transcript.
     """
     try:
-        # Log request headers if available
-        headers = {}
-        if request is not None:
-            headers = {key: value for key, value in request.headers.items()}
-            print(f"Request Headers: {json.dumps(headers, indent=2)}")
-            
-            # Check for Authorization header
-            auth_header = request.headers.get('Authorization')
-            if auth_header and auth_header.startswith('Bearer '):
-                # You could use the token from the header here
-                token = auth_header[7:]  # Remove 'Bearer ' prefix
-                print(f"Authorization token received: {token[:10]}...")
-        
         # First check for environment variable, then use provided API key
         actual_api_key = os.environ.get("GROQ_API_KEY", api_key)
         
-        # Check if API key is in Authorization header
-        if not actual_api_key and request is not None:
-            auth_header = request.headers.get('Authorization')
-            if auth_header and auth_header.startswith('Bearer '):
-                actual_api_key = auth_header[7:]  # Remove 'Bearer ' prefix
-        
         # Validate API key
         if not actual_api_key:
-            return "Error: Please provide your Groq API key or set the GROQ_API_KEY environment variable or include in Authorization header"
+            return "Error: Please provide your Groq API key or set the GROQ_API_KEY environment variable"
         
         if audio_file is None:
             return "Error: Please upload an audio or video file"
@@ -147,7 +114,7 @@ def transcribe_audio(audio_file, api_key, request: gr.Request = None):
     except Exception as e:
         return f"Error: {str(e)}"
 
-def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
+def transcribe_audio_from_url(audio_url, api_key):
     """Transcribe audio/video files from a URL into text using Groq's Whisper model.
     
     This tool converts spoken content from audio and video files into written text.
@@ -159,7 +126,6 @@ def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
                   Maximum size: 25MB.
         api_key: Your Groq API key, required for authentication.
                 You can obtain this from https://console.groq.com/
-        request: The Gradio request object containing headers.
     
     Returns:
         A text transcript of the spoken content in the audio file.
@@ -168,31 +134,12 @@ def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
         Provide a URL to a podcast episode to get a complete text transcript.
     """
     try:
-        # Log request headers if available
-        headers = {}
-        if request is not None:
-            headers = {key: value for key, value in request.headers.items()}
-            print(f"Request Headers: {json.dumps(headers, indent=2)}")
-            
-            # Check for Authorization header
-            auth_header = request.headers.get('Authorization')
-            if auth_header and auth_header.startswith('Bearer '):
-                # You could use the token from the header here
-                token = auth_header[7:]  # Remove 'Bearer ' prefix
-                print(f"Authorization token received: {token[:10]}...")
-        
         # First check for environment variable, then use provided API key
         actual_api_key = os.environ.get("GROQ_API_KEY", api_key)
         
-        # Check if API key is in Authorization header
-        if not actual_api_key and request is not None:
-            auth_header = request.headers.get('Authorization')
-            if auth_header and auth_header.startswith('Bearer '):
-                actual_api_key = auth_header[7:]  # Remove 'Bearer ' prefix
-        
         # Validate API key
         if not actual_api_key:
-            return "Error: Please provide your Groq API key or set the GROQ_API_KEY environment variable or include in Authorization header"
+            return "Error: Please provide your Groq API key or set the GROQ_API_KEY environment variable"
         
         if not audio_url or audio_url.strip() == "":
             return "Error: Please provide a URL to an audio or video file"
@@ -240,28 +187,6 @@ def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
         return f"Error downloading file: {str(e)}"
     except Exception as e:
         return f"Error: {str(e)}"
-
-# Create a dedicated endpoint for viewing request headers
-def view_headers(request: gr.Request = None):
-    """View all request headers.
-    
-    This function displays all the headers sent in the HTTP request.
-    
-    Parameters:
-        request: The Gradio request object.
-        
-    Returns:
-        A formatted string containing all request headers.
-    """
-    if request is None:
-        return "No request object available"
-    
-    try:
-        # Extract all headers
-        headers = {key: value for key, value in request.headers.items()}
-        return json.dumps(headers, indent=2)
-    except Exception as e:
-        return f"Error extracting headers: {str(e)}"
 
 # Create the Gradio interface with custom layout
 with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft()) as demo:
@@ -357,26 +282,8 @@ with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft
                         show_copy_button=True,
                         interactive=False
                     )
-        
-        # Tab 3: Request Headers
-        with gr.TabItem("Request Headers"):
-            with gr.Row():
-                with gr.Column():
-                    gr.Markdown("### 🔍 View Request Headers")
-                    gr.Markdown("Click the button below to view all headers sent in the current request.")
-                    
-                    view_headers_btn = gr.Button(
-                        "👁️ View Headers",
-                        variant="primary",
-                        size="lg"
-                    )
-                    
-                    headers_output = gr.JSON(
-                        label="Request Headers",
-                        value={"message": "Click the button to view headers"}
-                    )
     
-    # Connect the buttons to their respective functions
+    # Connect the buttons to their respective transcription functions
     upload_transcribe_btn.click(
         fn=transcribe_audio,
         inputs=[audio_input, api_key_input],
@@ -389,12 +296,6 @@ with gr.Blocks(title="Audio/Video Transcription with Groq", theme=gr.themes.Soft
         inputs=[url_input, api_key_input],
         outputs=url_transcript_output,
         show_progress=True
-    )
-    
-    view_headers_btn.click(
-        fn=view_headers,
-        inputs=[],
-        outputs=headers_output
     )
     
     # Add examples section
