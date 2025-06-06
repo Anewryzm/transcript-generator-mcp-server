@@ -114,7 +114,7 @@ def transcribe_audio(audio_file, api_key):
     except Exception as e:
         return f"Error: {str(e)}"
 
-def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
+def transcribe_audio_from_url(audio_url, api_key = None, request: gr.Request = None):
     """Transcribe audio/video files from a URL into text using Groq's Whisper model.
     
     This tool converts spoken content from audio and video files into written text.
@@ -124,6 +124,8 @@ def transcribe_audio_from_url(audio_url, api_key, request: gr.Request = None):
         audio_url: URL to an audio or video file to transcribe (http or https). 
                   Supported formats: MP3, MP4, MPEG, MPGA, M4A, WAV, WebM, FLAC, OGG, AAC.
                   Maximum size: 25MB.
+        api_key: Your Groq API key, required for authentication.
+                You can obtain this from https://console.groq.com/
     
     Returns:
         A text transcript of the spoken content in the audio file.
