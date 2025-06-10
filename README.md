@@ -14,6 +14,7 @@ tags:
   - transcript
   - api
   - stt
+demo_video: https://youtu.be/0wBCbXzK8TE
 ---
 
 # Transcript Generator
