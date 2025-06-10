@@ -8,15 +8,26 @@ app_file: app.py
 pinned: false
 tags:
   - mcp-server-track
+  - speech-to-text
   - whisper
   - groq
   - transcript
   - api
+  - stt
 ---
 
 # Transcript Generator
 
 A powerful MCP (Model Context Protocol) server that transcribes audio and video files into text using Groq's Whisper model. This tool enables AI assistants to process audio content, making multimedia data accessible for analysis and understanding.
+
+## 📹 Demo Video
+
+[![Transcript Generator Demo](https://img.youtube.com/vi/0wBCbXzK8TE/0.jpg)](https://youtu.be/0wBCbXzK8TE)
+
+There are three ways to use this project:
+1. **Directly on the Hugging Face space** - Upload your audio/video files and hit the transcript button
+2. **Using your favorite client** like Cursor, Windsurf or any other IDE that supports MCP
+3. **Using a custom agent** - Set up the MCP server with its available tools in your own application
 
 ## 🔍 Project Description
 
